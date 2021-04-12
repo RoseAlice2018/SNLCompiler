@@ -1,0 +1,15 @@
+program p
+
+var   integer  v1;
+char  c;
+
+procedure f();
+begin
+    v1 :=2
+    v2 :=2
+End
+
+Begin
+  f();
+  write(v1)
+end.

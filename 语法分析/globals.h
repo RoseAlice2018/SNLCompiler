@@ -8,24 +8,24 @@
 #include <string>
 
 
-typedef enum 
+enum LexType 
 {
-    //²¾¼Çµ¥´Ê·ûºÅ
+    //ç°¿è®°å•è¯ç¬¦å·
     ENDFILE,	ERROR,
 
-    //±£Áô×Ö
+    //ä¿ç•™å­—
     PROGRAM,	PROCEDURE,	TYPE,	VAR,		IF,
 	THEN,		ELSE,		FI,		WHILE,		DO,
 	ENDWH,		BEGIN,		END,	READ,		WRITE,
 	ARRAY,		OF,			RECORD,	RETURN, 
 
-    //ÀàĞÍ
+    //ç±»å‹
     INTEGER_T,	CHAR_T,
 
-    //¶à×Ö·ûµ¥´Ê·ûºÅ
+    //å¤šå­—ç¬¦å•è¯ç¬¦å·
     ID,			INTC_VAL,		CHARC_VAL,
 
-    //ÌØÊâ·ûºÅ
+    //ç‰¹æ®Šç¬¦å·
 	ASSIGN,		EQ,			LT,		PLUS,		MINUS,
     TIMES,DIVIDE,		LPAREN,	RPAREN,		DOT,
     COLON,		SEMI,		COMMA,	LMIDPAREN,	RMIDPAREN,
@@ -34,7 +34,7 @@ typedef enum
 
 
 
-    //·ÇÖÕ½á·û
+    //éç»ˆç»“ç¬¦
     Program,	      ProgramHead,	    ProgramName,	DeclarePart,
     TypeDec,        TypeDeclaration,	TypeDecList,	TypeDecMore,
     TypeId,	      TypeName,			BaseType,	    StructureType,
@@ -52,7 +52,7 @@ typedef enum
     Exp,			  OtherTerm,		Term,           OtherFactor,
     Factor,         Variable,			VariMore,		FieldVar,
     FieldVarMore,   CmpOp,			AddOp,          MultOp
-} LexType;
+} ;
 
 extern std::map<LexType,std::string> lexname;
 
@@ -62,6 +62,9 @@ class Token{
             this->line = line;
             this->lex = lex;
             this->sem = sem;
+        }
+        Token(){
+            
         }
         int getLine() const{return line;}
         std::string getLexName() const{return lexname[lex];}
@@ -76,34 +79,34 @@ class Token{
 };
 
 
-//¼ÇÂ¼Óï·¨Ê÷½ÚµãÀàĞÍ
+//è®°å½•è¯­æ³•æ ‘èŠ‚ç‚¹ç±»å‹
 typedef enum{Prok,PheadK,DecK,TypeK,VarK,ProcDecK,StmLK,StmtK,ExpK}NodeKind;
 extern std::map<NodeKind,std::string> nodeKindMap;
 
-//DecKind ³ÉÔ±
+//DecKind æˆå‘˜
 typedef enum{ArrayK,CharK,IntegerK,RecordK,IdK} DecKind;
 extern std::map<DecKind,std::string> decKindMap;
 
-//StmtKind ³ÉÔ±
+//StmtKind æˆå‘˜
 typedef enum{IfK,WhileK,AssignK,ReadK,WriteK,CallK,ReturnK}StmtKind;
 extern std::map<StmtKind,std::string> stmtKindMap;
 
 
-//ExpKind ³ÉÔ±
+//ExpKind æˆå‘˜
 typedef enum{OpK,ConstK,VariK} ExpKind;
 extern std::map<ExpKind,std::string> expKindMap;
 
 
 
-//VarKind ³ÉÔ±
+//VarKind æˆå‘˜
 typedef enum{IdV,ArrayMembV,FieldMembV}VarKind;
 extern std::map<VarKind,std::string> varKindMap;
 
-//ExpType ³ÉÔ±
+//ExpType æˆå‘˜
 typedef enum{Void,Integer,Boolean}ExpType;
 extern std::map<ExpType,std::string> expTypeMap;
 
-//ParamType ³ÉÔ±
+//ParamType æˆå‘˜
 typedef enum{valparamType,varparamType}ParamType;
 extern std::map<ParamType,std::string> paramTypeMap;
 
@@ -113,62 +116,62 @@ extern std::map<ParamType,std::string> paramTypeMap;
 struct symbtable;
 
 typedef struct treeNode{
-    //Ö¸Ïò×ÓÓï·¨Ê÷½ÚµãÖ¸Õë
+    //æŒ‡å‘å­è¯­æ³•æ ‘èŠ‚ç‚¹æŒ‡é’ˆ
     struct treeNode* child[MAXCHILDREN];
-    //Ö¸ÏòĞÖµÜÓï·¨Ê÷½ÚµãÖ¸Õë
+    //æŒ‡å‘å…„å¼Ÿè¯­æ³•æ ‘èŠ‚ç‚¹æŒ‡é’ˆ
     struct treeNode* sibling;
-    //¼ÇÂ¼Ô´³ÌĞòĞĞºÅ
+    //è®°å½•æºç¨‹åºè¡Œå·
     int lineno;
     NodeKind nodekind;
-    //³ÉÔ±Kind ¼ÇÂ¼Óï·¨Ê÷½ÚµãµÄ¾ßÌåÄÚÈİ£¬Îª¹²ÓÃÌå½á¹¹
+    //æˆå‘˜Kind è®°å½•è¯­æ³•æ ‘èŠ‚ç‚¹çš„å…·ä½“å†…å®¹ï¼Œä¸ºå…±ç”¨ä½“ç»“æ„
     union
     {
         DecKind dec;
         StmtKind stmt;
         ExpKind  exp;
     }kind;
-    //¼ÇÂ¼Ò»¸ö½ÚµãÖĞ±êÊ¶·ûµÄ¸öÊı
+    //è®°å½•ä¸€ä¸ªèŠ‚ç‚¹ä¸­æ ‡è¯†ç¬¦çš„ä¸ªæ•°
     int idnum;
-    //×Ö·û´®Êı×é£¬Êı×é³ÉÔ±ÊÇ½ÚµãÖĞµÄ±êÊ¶·ûµÄÃû×Ö
+    //å­—ç¬¦ä¸²æ•°ç»„ï¼Œæ•°ç»„æˆå‘˜æ˜¯èŠ‚ç‚¹ä¸­çš„æ ‡è¯†ç¬¦çš„åå­—
     char name[10][10];
-    //Ö¸ÕëÊı×é£¬Êı×é³ÉÔ±ÊÇ½ÚµãÖĞµÄ¸÷¸ö±êÊ¶·ûÔÚ·ûºÅ±íÖĞµÄÈë¿Ú
+    //æŒ‡é’ˆæ•°ç»„ï¼Œæ•°ç»„æˆå‘˜æ˜¯èŠ‚ç‚¹ä¸­çš„å„ä¸ªæ ‡è¯†ç¬¦åœ¨ç¬¦å·è¡¨ä¸­çš„å…¥å£
     struct symbtable *table[10];
-    //¼ÇÂ¼ÀàĞÍÃû£¬µ±½ÚµãÎªÉùÃ÷ÀàĞÍ£¬ÇÒÀàĞÍÊÇÓÉÀàĞÍ±êÊ¶·û±í±íÊ¾Ê±ÓĞĞ§
+    //è®°å½•ç±»å‹åï¼Œå½“èŠ‚ç‚¹ä¸ºå£°æ˜ç±»å‹ï¼Œä¸”ç±»å‹æ˜¯ç”±ç±»å‹æ ‡è¯†ç¬¦è¡¨è¡¨ç¤ºæ—¶æœ‰æ•ˆ
     char type_name[10];
-    //¼ÇÂ¼Óï·¨Ê÷½ÚµãÆäËûÊôĞÔ£¬Îª½á¹¹ÌåÀàĞÍ
-    //³ÉÔ±attr:¼ÇÂ¼Óï·¨Ê÷½ÚµãµÄÆäËûÊôĞÔ£¬Îª½á¹¹ÌåÀàĞÍ
+    //è®°å½•è¯­æ³•æ ‘èŠ‚ç‚¹å…¶ä»–å±æ€§ï¼Œä¸ºç»“æ„ä½“ç±»å‹
+    //æˆå‘˜attr:è®°å½•è¯­æ³•æ ‘èŠ‚ç‚¹çš„å…¶ä»–å±æ€§ï¼Œä¸ºç»“æ„ä½“ç±»å‹
     struct
     {
-        //attr³ÉÔ±ArrayAttr:¼ÇÂ¼Êı×éÀàĞÍµÄÊôĞÔ
+        //attræˆå‘˜ArrayAttr:è®°å½•æ•°ç»„ç±»å‹çš„å±æ€§
         struct
         {
-            //Arrayttr³ÉÔ±low:ÕûÊıÀàĞÍ±äÁ¿£¬¼ÇÂ¼Êı×éµÄÏÂ½ç
+            //Arrayttræˆå‘˜low:æ•´æ•°ç±»å‹å˜é‡ï¼Œè®°å½•æ•°ç»„çš„ä¸‹ç•Œ
             int low;
-            //Arrayttr³ÉÔ±up:ÕûÊıÀàĞÍ±äÁ¿£¬¼ÇÂ¼Êı×éµÄÉÏ½ç
+            //Arrayttræˆå‘˜up:æ•´æ•°ç±»å‹å˜é‡ï¼Œè®°å½•æ•°ç»„çš„ä¸Šç•Œ
             int up;
-            //¼ÇÂ¼Êı×éµÄ³ÉÔ±ÀàĞÍ
+            //è®°å½•æ•°ç»„çš„æˆå‘˜ç±»å‹
             DecKind childtype;
         }ArrayAttr;
 
-        //attr³ÉÔ±procAttr:¼ÇÂ¼¹ı³ÌµÄÊôĞÔ
+        //attræˆå‘˜procAttr:è®°å½•è¿‡ç¨‹çš„å±æ€§
         struct
         {
-            //¼ÇÂ¼¹ı³ÌµÄ²ÎÊıÀàĞÍ valparam or varparam Öµ²ÎÊı»òÕß±ä²ÎÊı
+            //è®°å½•è¿‡ç¨‹çš„å‚æ•°ç±»å‹ valparam or varparam å€¼å‚æ•°æˆ–è€…å˜å‚æ•°
             ParamType paramt;
         }ProcAttr;
 
-        // attr³ÉÔ±ExpAttr:¼ÇÂ¼±í´ïÊ½µÄÊôĞÔ
+        // attræˆå‘˜ExpAttr:è®°å½•è¡¨è¾¾å¼çš„å±æ€§
         struct 
         {
             /*
-            ExpAttr³ÉÔ±op£º¼ÇÂ¼Óï·¨Ê÷½ÚµãµÄÔËËã·ûµ¥´Ê£¬Îªµ¥´ÊÀàĞÍ¡£
-				µ±Óï·¨Ê÷½ÚµãÎª¡°¹ØÏµÔËËã±í´ïÊ½¡±¶ÔÓ¦½ÚµãÊ±£¬È¡ÖµLT,EQ£»
-				µ±Óï·¨Ê÷½ÚµãÎª¡°¼Ó·¨ÔËËã¼òµ¥±í´ïÊ½¡±¶ÔÓ¦½ÚµãÊ±£¬È¡ÖµÎªPLUS,MINUS;
-				µ±Óï·¨Ê÷½ÚµãÎª¡°³Ë·¨ÔËËãÏî¡±¶ÔÓ¦½ÚµãÊ±£¬È¡ÖµTIMES,OVER£»
-				ÆäËûÇé¿öÏÂÎŞĞ§
+            ExpAttræˆå‘˜opï¼šè®°å½•è¯­æ³•æ ‘èŠ‚ç‚¹çš„è¿ç®—ç¬¦å•è¯ï¼Œä¸ºå•è¯ç±»å‹ã€‚
+				å½“è¯­æ³•æ ‘èŠ‚ç‚¹ä¸ºâ€œå…³ç³»è¿ç®—è¡¨è¾¾å¼â€å¯¹åº”èŠ‚ç‚¹æ—¶ï¼Œå–å€¼LT,EQï¼›
+				å½“è¯­æ³•æ ‘èŠ‚ç‚¹ä¸ºâ€œåŠ æ³•è¿ç®—ç®€å•è¡¨è¾¾å¼â€å¯¹åº”èŠ‚ç‚¹æ—¶ï¼Œå–å€¼ä¸ºPLUS,MINUS;
+				å½“è¯­æ³•æ ‘èŠ‚ç‚¹ä¸ºâ€œä¹˜æ³•è¿ç®—é¡¹â€å¯¹åº”èŠ‚ç‚¹æ—¶ï¼Œå–å€¼TIMES,OVERï¼›
+				å…¶ä»–æƒ…å†µä¸‹æ— æ•ˆ
             */
            LexType op;
-           //¼ÇÂ¼Óï·¨Ê÷½ÚµãµÄÊıÖµ£¬ÎªÊı×Ö²ÅÓĞĞ§
+           //è®°å½•è¯­æ³•æ ‘èŠ‚ç‚¹çš„æ•°å€¼ï¼Œä¸ºæ•°å­—æ‰æœ‰æ•ˆ
            int val;
            
            VarKind varkind;
@@ -180,6 +183,6 @@ typedef struct treeNode{
 extern std::set<LexType> NTSet;
 extern std::set<LexType> TTSet;
 
-/*Çåµ¥µÄĞĞºÅ*/
+/*æ¸…å•çš„è¡Œå·*/
 extern int lineno;
 #endif

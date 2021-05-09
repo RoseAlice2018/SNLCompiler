@@ -10,31 +10,18 @@
 
 enum LexType 
 {
-    //簿记单词符号
-    ENDFILE,	ERROR,
 
-    //保留字
+    ENDFILE,	ERROR,
     PROGRAM,	PROCEDURE,	TYPE,	VAR,		IF,
 	THEN,		ELSE,		FI,		WHILE,		DO,
 	ENDWH,		BEGIN,		END,	READ,		WRITE,
 	ARRAY,		OF,			RECORD,	RETURN, 
-
-    //类型
     INTEGER_T,	CHAR_T,
-
-    //多字符单词符号
     ID,			INTC_VAL,		CHARC_VAL,
-
-    //特殊符号
 	ASSIGN,		EQ,			LT,		PLUS,		MINUS,
     TIMES,DIVIDE,		LPAREN,	RPAREN,		DOT,
     COLON,		SEMI,		COMMA,	LMIDPAREN,	RMIDPAREN,
     UNDERRANGE,
-
-
-
-
-    //非终结符
     Program,	      ProgramHead,	    ProgramName,	DeclarePart,
     TypeDec,        TypeDeclaration,	TypeDecList,	TypeDecMore,
     TypeId,	      TypeName,			BaseType,	    StructureType,
@@ -120,7 +107,7 @@ typedef struct treeNode{
     struct treeNode* child[MAXCHILDREN];
     //指向兄弟语法树节点指针
     struct treeNode* sibling;
-    //记录源程序行号
+    //记录源程序
     int lineno;
     NodeKind nodekind;
     //成员Kind 记录语法树节点的具体内容，为共用体结构
@@ -140,10 +127,10 @@ typedef struct treeNode{
     char type_name[10];
     //记录语法树节点其他属性，为结构体类型
     //成员attr:记录语法树节点的其他属性，为结构体类型
-    struct
+    struct 
     {
         //attr成员ArrayAttr:记录数组类型的属性
-        struct
+        struct 
         {
             //Arrayttr成员low:整数类型变量，记录数组的下界
             int low;
@@ -154,7 +141,7 @@ typedef struct treeNode{
         }ArrayAttr;
 
         //attr成员procAttr:记录过程的属性
-        struct
+        struct 
         {
             //记录过程的参数类型 valparam or varparam 值参数或者变参数
             ParamType paramt;
@@ -184,5 +171,5 @@ extern std::set<LexType> NTSet;
 extern std::set<LexType> TTSet;
 
 /*清单的行号*/
-extern int lineno;
+//int lineno;
 #endif

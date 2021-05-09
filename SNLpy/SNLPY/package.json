@@ -1,0 +1,18 @@
+{
+  "name": "SNLPY",
+  "main": "index.html",
+  "description": "SNL分析器",
+  "version":  "0.1.0",
+  "window": {
+    "toolbar": false,
+    "width": 800,
+    "height": 500,
+    "min_width": 800,
+    "min_height": 500
+  },
+  "maintatiners": [{
+      "name": "lkk",
+      "email": "lizhekang@163.com",
+      "web": "http://www.lk-life.com"
+    }]
+}

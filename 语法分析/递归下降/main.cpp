@@ -66,7 +66,7 @@ Token* getToken()
         while(getline(in,line))
         {
             //得到文件的一行
-            cout<<line<<endl;
+            //cout<<line<<endl;
             int begin = 0;
             int line_num = 0;
             LexType type_this_line;
@@ -102,59 +102,49 @@ void showToken(Token* tokHead)
         tmp=tmp->next;
     }
 }
-void showdeclarepart(TreeNode* treehead)
+void space(int Num)
 {
-    if(treehead->nodekind == TypeK)
-    {
-        //show
-
-        //go on
-        if(treehead->sibling!=NULL)
-         showdeclarepart(treehead->sibling);
-    }
-    else if(treehead->nodekind == VarK)
-    {
-        //show
-
-        //go on
-        if(treehead->sibling!=NULL)
-            showdeclarepart(treehead->sibling);
-    }
-    else if(treehead->nodekind == ProcDecK)
-    {
-
-        //show
-
-        return;
-    }
-    return;
+    for(int i=0;i<Num;i++)
+        printf(" ");
 }
-void showstmchild(TreeNode* treehead)
-{
-    if(treehead==NULL)
-        return;
-    //cout<<treehead->nodekind<<endl;
-    
-}
-void showstmLk(TreeNode* treehead)
-{
-    if(treehead==NULL)
-        return;
-    cout<<"StmLK"<<endl;
-    cout<<"{"<<endl;
-    showstmchild(treehead->child[0]);
-    cout<<"}"<<endl;
-}
-void showTree(TreeNode* treehead)
+void showTree(TreeNode* treehead,int Num)
 {
     if(treehead==NULL)
         return ;
-    cout<<"ProK"<<endl;
-    cout<<"PheadK"<<treehead->name<<endl;
+    space(Num);
     printf("{\n");
-    showdeclarepart(treehead->child[1]);
-    showstmLk(treehead->child[2]);
-    printf("}\n");    
+    space(Num);
+    cout<<" \"name\":"<<"\""<<NodeKindtostring[treehead->nodekind]<<"\""<<endl;
+    for(int i=0;i<3;i++)
+    if(treehead->child[i]!=NULL)
+        {printf(",");break;}
+    for(int i=0;i<3;i++)
+    {
+        if(treehead->child[i]!=NULL)
+        {
+            space(Num);
+            cout<<"\"child";
+            cout<<i<<"\":";
+            showTree(treehead->child[i],Num+4); 
+            if(i+1<3&&treehead->child[i+1]!=NULL)
+            {
+
+                printf(",");
+            }
+        }
+            
+    }
+    space(Num);
+    printf("}\n");
+    if(treehead->sibling!=NULL)
+    {
+        printf(",");
+        space(Num);
+        cout<<"\"sibling";
+        cout<<"\":";
+        showTree(treehead->sibling,Num); 
+    }
+           
 }
 int main()
 {
@@ -163,7 +153,7 @@ int main()
     Parse* test = new Parse(tokenHead);
     test->run();
     TreeNode* t = test->get_parsetree_head();
-    //showTree(t);
+    showTree(t,0);
     return 0;
 }
 

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+      <title>SNLPY</title>
+        <!-- Bootstap -->
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <!-- theme -->
+        <link rel="stylesheet" href="css/theme.css">
+    </head>
+  <body>
+
+    <!-- menu -->
+    <nav class="navbar navbar-default" id="menu">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">SNLPY</a>
+        </div>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="navbar-collapse">
+          <ul class="nav navbar-nav">
+            <!-- file menu -->
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">文件</a>
+              <ul class="dropdown-menu" role="menu">
+                <li>
+                  <a href="#" class="file">打开文件
+                    <input type="file" id="open_file">
+                  </a>
+                </li>
+                <li><a href="#" id="save">保存</a></li>
+                <li class="divider"></li>
+                <li><a href="#">关闭</a></li>
+              </ul>
+            </li>
+            <!-- build menu -->
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">工具</a>
+              <ul class="dropdown-menu" role="menu">
+                <li><a href="#" id="build">编译</a></li>
+                <li class="divider"></li>
+                <li><a href="#" id="lexcial">词法分析</a></li>
+                <li><a href="#" id="grammatical">语法分析</a></li>
+                <li><a href="#" id="semantic">语义分析</a></li>
+              </ul>
+            </li>
+            <!-- other menu -->
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">其它</a>
+              <ul class="dropdown-menu" role="menu">
+                <li><a href="#" data-toggle="modal" data-target="#about">关于</a></li>
+              </ul>
+            </li>
+          </ul>
+
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#">词法错误<span class="badge" id="lexcial-error-note">0</span></a></li>
+            <li><a href="#">语法错误<span class="badge" id="grammatical-error-note">0</span></a></li>
+            <li><a href="#">语义错误<span class="badge" id="semantic-error-note">0</span></a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- editor -->
+    <div id="editor">
+    </div>
+
+    <!-- terminal -->
+    <div id="terminal">
+      <ul class="nav nav-tabs">
+        <li role="presentation" class="active" id="log_messages"><a href="#">调试信息</a></li>
+        <li role="presentation" id="run_results"><a href="#">运行结果</a></li>
+      </ul>
+    </div>
+    <textarea class="form-control" id="log_messages_display" readonly></textarea>
+    <textarea class="form-control hidden" id="run_results_display" readonly></textarea>
+
+    <!-- tail -->
+    <div id="tail">
+      <div class="col-md-4 col-md-offset-8 text-right">
+        <span class="label label-warning" id="state-note">没有选择文件</span>
+      </div>
+    </div>
+
+    <!-- about me -->
+    <div class="modal" id="about" role="dialog" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h4 class="modal-title">关于</h4>
+          </div>
+          <div class="modal-body">
+            <p>SNL语言编译器</p>
+            <p>版本：v0.1.0</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <!-- jQuery -->
+  <script src="js/jquery-1-11-2.min.js"></script>
+  <!-- bootstarp -->
+  <script src="js/bootstrap.min.js"></script>
+  <!-- ACE -->
+  <script src="js/ace.js"></script>
+  <script src="js/theme-clouds.js"></script>
+  <script src="js/mode-javascript.js"></script>
+  <script src="js/keybinding-vim.js"></script>
+  <!-- hotkey -->
+  <script src="js/jquery.hotkeys.js"></script>
+
+  <!-- editor -->
+  <script>
+    var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/clouds");
+
+    //var JavaScriptMode = require("ace/mode/javascript").Mode;
+    //editor.getSession().setMode(new JavaScriptMode());
+
+    editor.getSession().setValue("open a file.")
+
+    //监听快捷键
+
+  </script>
+
+  <!-- global -->
+  <script>
+  //函数定义
+  function setErrorNote(lexcial, grammatical, semantic) {
+    $("#lexcial-error-note").text(lexcial)
+    $("#grammatical-error-note").text(grammatical)
+    $("#semantic-error-note").text(semantic)
+  }
+
+  //全局设定
+  //禁止拖拽
+  $(window).on('dragover', function (e) {
+    e.preventDefault();
+    e.originalEvent.dataTransfer.dropEffect = 'none';
+  });
+  $(window).on('drop', function (e) {
+      e.preventDefault();
+  });
+
+  $(document).on('keydown', null, 'ctrl+s', function(){
+    alert("save")
+  });
+      
+
+  $(document).ready(function(){
+    var exec = require('child_process').exec;
+    var emitter = require('events').EventEmitter
+    var event = new emitter()
+    var fs = require('fs');
+    var file_dir = ""
+    var lexcial = 0
+    var grammatical = 0
+    var semantic = 0
+    var original = ''
+
+    function saveFile() {
+      fs.exists(file_dir, function(exists) {
+        if(exists) {
+          data = editor.getSession().getValue()
+          fs.writeFile(file_dir, data, function(err) {
+            if(err) {
+              $("#state-note").removeClass("label-warning label-success").addClass("label-danger").text("未能保存文件")
+            }else {
+              original = data
+              $("#state-note").removeClass("label-warning label-danger").addClass("label-success").text("成功保存文件")
+            }
+          })
+        }else {
+          $("#state-note").removeClass("label-warning label-success").addClass("label-danger").text("文件不存在")
+        }
+      })
+    }
+
+    function lexcialFunc() {
+      fs.exists(file_dir, function(exists) {
+        if(exists) {
+          exec('python scanner.py ' + file_dir, {}, function (error, stdout, stderr){
+            temp = $('#log_messages_display').val()
+            temp = temp + '\n[cmd] python scanner.py ' + file_dir
+            $('#log_messages_display').val(temp)
+            if(stderr == "") {
+              $('#run_results_display').val(stdout)
+              setErrorNote(0,0,0)
+
+            }else {
+              $('#run_results_display').val(stderr)
+              lexcial = stderr.split('\n').length - 1
+              grammatical = 0
+              semantic = 0
+              setErrorNote(lexcial,grammatical,semantic)
+            }
+            $("#state-note").removeClass("label-warning label-danger").addClass("label-success").text("词法分析完成")
+          });
+        }else{
+          $("#state-note").removeClass("label-warning label-success").addClass("label-danger").text("文件不存在")
+        }
+      });
+    }
+    
+    function grammaticalFunc() {
+      exec('python parse.py', {}, function (error, stdout, stderr){
+        temp = $('#log_messages_display').val()
+        temp = temp + '\n[cmd] python parse.py ' + file_dir
+        $('#log_messages_display').val(temp)
+        if(stderr == ""){
+          $('#run_results_display').val(stdout)
+          setErrorNote(lexcial,0,0)
+        }else{
+          $('#run_results_display').val(stderr)
+          grammatical = stderr.split('\n').length - 1
+          semantic = 0
+          setErrorNote(lexcial,grammatical,semantic)
+        }
+        $("#state-note").removeClass("label-warning label-danger").addClass("label-success").text("语法分析完成")
+      });
+    }
+    
+	function semanticFunc() {
+	  exec('python analyze.py', {}, function (error, stdout, stderr){
+	    temp = $('#log_messages_display').val()
+        temp = temp + '\n[cmd] python analyze.py ' + file_dir
+		$('#log_messages_display').val(temp)
+		if(stderr == ""){
+          $('#run_results_display').val(stdout)
+          setErrorNote(lexcial,grammatical,0)
+        }else{
+		  $('#run_results_display').val(stderr)
+		  semantic = stderr.split('\n').length - 1
+		  setErrorNote(lexcial,grammatical,semantic)
+		}
+		  $("#state-note").removeClass("label-warning label-danger").addClass("label-success").text("语义分析完成")
+	  });
+	}
+	
+	  
+    $('#log_messages_display').val("SNLPY start!!!")
+
+    //从新调整部件大小
+    $(window).resize(function() {
+      window_width = $(window).width()
+      window_height = $(window).height()
+      nav_height = $("nav").height()
+      terminal_bar_height = $("#terminal ul").height()
+      editor_height = window_height - nav_height
+      editor_width = window_width
+      state_bar_height = editor_height * 0.4 - terminal_bar_height - 40
+      $("#editor").height(editor_height * 0.6)
+      $("#log_messages_display").height(state_bar_height)
+      $("#run_results_display").height(state_bar_height)
+    });
+
+    //点击事件
+    $("#save").click(function() {
+      saveFile()
+    });
+    $("#log_messages").click(function(){
+      $(this).parent().children().removeClass("active")
+      $(this).addClass("active")
+      $("#log_messages_display").removeClass("hidden")
+      $("#run_results_display").addClass("hidden")
+    });
+    $("#run_results").click(function(){
+      $(this).parent().children().removeClass("active")
+      $(this).addClass("active")
+      $("#run_results_display").removeClass("hidden")
+      $("#log_messages_display").addClass("hidden")
+    });
+
+    $("#build").click(function(){
+      exec('python3 -V', {}, function (error, stdout, stderr){
+        //functions
+        $("#log_messages_display").val(stdout)
+      });
+    });
+    $("#lexcial").click(function(){
+      //functions
+      saveFile();
+      lexcialFunc();
+    });
+    $("#grammatical").click(function(){
+	  //functions
+      grammaticalFunc();
+    });
+	$("#semantic").click(function(){
+	  //functions
+      semanticFunc();
+    });
+
+    //监视文件打开事件
+    $("#open_file").change(function(){
+      file_dir = $(this).val()
+      fs.exists(file_dir, function(exists) {
+        if(exists) {
+          //读取文件
+          fs.readFile(file_dir, function (err, data) {
+            editor.getSession().setValue(String(data))
+            original = String(data)
+          });
+
+          //修改界面
+          $("#state-note").removeClass("label-warning label-danger").addClass("label-success").text("编辑中")
+        }
+      });
+    });
+
+    //监视内容变化
+    editor.getSession().on('change', function(e) {
+      data = editor.getSession().getValue()
+      if(original != data && original != "") {
+        //修改界面
+        $("#state-note").removeClass("label-success label-danger").addClass("label-warning").text("修改未保存")
+      }else{
+        $("#state-note").removeClass("label-warning label-danger").addClass("label-success").text("编辑中")
+      }
+    });
+  });
+  </script>
+
+</html>

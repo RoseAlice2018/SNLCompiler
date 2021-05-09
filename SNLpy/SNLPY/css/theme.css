@@ -1,0 +1,32 @@
+body {
+  overflow: hidden;
+}
+textarea {
+  resize: none;
+  font-size: 11px !important;
+}
+#menu {
+  margin-bottom: 0px !important;
+}
+#editor {
+  position: relative;
+  height: 270px;
+}
+#log_messages_display {
+  height: 110px;
+}
+#run_results_display {
+  height: 110px;
+}
+//重定义input样式
+.file {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+}
+.file input {
+    position: absolute;
+    right: 0;
+    top: 7px;
+    opacity: 0;
+}

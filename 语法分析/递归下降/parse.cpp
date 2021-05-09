@@ -13,7 +13,10 @@ void Parse::syntaxError(std::string msg)
 }
 //run
 void Parse::run(){
-    
+    root = program();
+	if (head->getLex() != ENDFILE) {
+		syntaxError("end earily in line:" + std::to_string(head->getLine()));
+	}
 }
 //
 Parse::Parse(const Token* root):head(root)
@@ -106,11 +109,13 @@ TreeNode* Parse::declarePart(){
             tp = NULL;
         }
     }
+	//std::cout<<"----"<<head->getLexName()<<std::endl;
     TreeNode* varp = newDecANode(VarK);
     if(varp != NULL)
     {
         varp->lineno = line0; 
         TreeNode* tp2 = varDec();
+		//std::cout<<"----"<<head->getLexName()<<std::endl;
         if(tp2 != NULL)
             varp->child[0] = tp2;
         else 
@@ -119,7 +124,9 @@ TreeNode* Parse::declarePart(){
             varp = NULL;
         }
     }
+	//std::cout<<"----"<<head->getLexName()<<std::endl;
     TreeNode* proc = procDec();
+	//std::cout<<"----"<<head->getLexName()<<std::endl;
     if(NULL == proc) {}
     if(varp == NULL) {
         varp = proc;
@@ -473,7 +480,8 @@ TreeNode *Parse::varDec() {
 		break;
 	case VAR:
 		t = varDeclaration();
-        head = head->next;
+		//std::cout<<"----"<<head->getLexName()<<std::endl;
+        //head = head->next;
 		break;
 	default:
 		syntaxError("unexpected token:" + head->getLexName() + " in varDec()! in line " + std::to_string(head->getLine()));
@@ -599,6 +607,7 @@ TreeNode *Parse::procDec() {
 		t = procDeclaration();
 		break;
 	default:
+		syntaxError("609");
 		syntaxError("unexpected token " + head->getLexName() + " in procDec()! in line:" + std::to_string(head->getLine()));
 		head = head->next;
 		break;
@@ -635,7 +644,7 @@ TreeNode *Parse::procDeclaration() {
 		t->child[1] = procDecPart();
 		t->child[2] = procBody();
 		//下面的语句为存在多个procedure时使用，将其他procedure作为兄弟节点
-		//t->sibling = procDec();
+		t->sibling = procDec();
 	}
 	return t;
 }
@@ -928,7 +937,7 @@ TreeNode *Parse::assCall() {
 //如果处理成功，函数返回生成的赋值语句类型语法树节点t，否则返回NULL.
 TreeNode *Parse::assignmentRest() {
 	TreeNode *t = newStmtNode(AssignK);
-	match(EQ);
+	match(ASSIGN);
 	if (t != NULL) {
 		t->lineno = line0;		
 		t->child[0] = mexp();

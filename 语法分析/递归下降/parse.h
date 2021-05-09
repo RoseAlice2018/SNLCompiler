@@ -2,17 +2,21 @@
 #define PARSE_H
 
 #include "../globals.h"
-
+#include "../utils.h"
+#include <iostream>
 class Parse
 {
    public:
     TreeNode* get_parsetree_head(){
         return root;
     }
-   private:
+    //Parse(Token* head){};
     Parse(const Token* root);
+   private:
+    std::string temp_name;
+    // Parse(const Token* root);
     TreeNode* program();
-   protected:
+   public:
     void run();
    private:
     const Token* head;
